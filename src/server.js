@@ -8,12 +8,10 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT ;
 
-// Middleware
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Routes
 app.use('/api', apiRoutes);
 
 app.get('*', (req, res) => {
