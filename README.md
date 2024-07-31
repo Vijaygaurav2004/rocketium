@@ -140,7 +140,7 @@ This will start the server and run the initialization script if it's the first t
 ]
 ```
 
-For more detailed API documentation, please refer to the [Postman Collection](link-to-your-postman-collection).
+For more detailed API documentation, please refer to the https://documenter.getpostman.com/view/37320201/2sA3kd9cNj.
 
 ## Data Structure
 
