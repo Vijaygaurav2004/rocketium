@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dummy Data Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #controls {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ccc;
+        }
+        .loader {
+            display: none;
+            padding: 10px;
+        }
+        #dataContainer {
+            flex: 1;
+            overflow: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        th.sortable:hover {
+            cursor: pointer;
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Dummy Data Viewer</h1>
+<div id="controls">
+    <label for="sortField">Sort by:</label>
+    <select id="sortField" onchange="updateFilterAndFetch()">
+        <option value="name">name</option>
+        <option value="language">language</option>
+        <option value="id">id</option>
+        <option value="bio">bio</option>
+        <option value="version">version</option>
+    </select>
+    <br><br>
+    <label id="filterLabel" for="filterField">Filter by name:</label>
+    <input type="text" id="filterField" oninput="filterData()">
+</div>
+<div class="loader" id="loader">Loading...</div>
+<div id="dataContainer"></div>
+
+<script>
+    let currentSort = 'id';
+    let currentOrder = 'asc';
+    let data = []; // Store the full dataset
+
+    function updateFilterAndFetch() {
+        updateFilterLabel();
+        fetchData();
+    }
+
+    function updateFilterLabel() {
+        const sortField = document.getElementById('sortField').value;
+        document.getElementById('filterLabel').innerText = `Filter by ${sortField}:`;
+    }
+
+    function fetchData() {
+        const sortField = document.getElementById('sortField').value;
+        let url = `/api/data?sort=${sortField}&order=${currentOrder}`;
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('dataContainer').innerHTML = '';
+
+        fetch(url)
+            .then(response => response.json())
+            .then(fetchedData => {
+                data = fetchedData; // Store the full dataset
+                filterData();
+                document.getElementById('loader').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('dataContainer').innerHTML = 'Error loading data. Please try again.';
+            });
+    }
+
+    function filterData() {
+        const filterValue = document.getElementById('filterField').value.toLowerCase();
+        const sortField = document.getElementById('sortField').value;
+        const filteredData = data.filter(item =>
+            item[sortField].toString().toLowerCase().includes(filterValue)
+        );
+        displayData(filteredData);
+    }
+
+    function displayData(filteredData) {
+        const container = document.getElementById('dataContainer');
+        let html = '<table><tr><th onclick="changeSort(\'id\')">ID</th><th onclick="changeSort(\'name\')">Name</th><th onclick="changeSort(\'language\')">Language</th><th onclick="changeSort(\'bio\')">Bio</th><th onclick="changeSort(\'version\')">Version</th></tr>';
+
+        filteredData.forEach(item => {
+            html += `<tr>
+                    <td>${item.id || ''}</td>
+                    <td>${item.name || ''}</td>
+                    <td>${item.language || ''}</td>
+                    <td>${item.bio || ''}</td>
+                    <td>${item.version || ''}</td>
+                </tr>`;
+        });
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    function changeSort(field) {
+        if (field === currentSort) {
+            currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort = field;
+            currentOrder = 'asc';
+        }
+        document.getElementById('sortField').value = field;
+        updateFilterAndFetch();
+    }
+
+    // Initial setup
+    updateFilterLabel();
+    fetchData();
+
+    // Add event listener for real-time filtering
+    document.getElementById('filterField').addEventListener('input', filterData);
+</script>
+</body>
+</html>
