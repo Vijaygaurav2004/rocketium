@@ -10,24 +10,24 @@ exports.getData = async (req, res) => {
 
         const { sort, order, filter } = req.query;
 
-        // Check for unexpected query parameters
+        
         const allowedParams = ['sort', 'order', 'filter'];
         const unexpectedParams = Object.keys(req.query).filter(param => !allowedParams.includes(param));
         if (unexpectedParams.length > 0) {
             return res.status(400).json({ error: `Unexpected query parameter(s): ${unexpectedParams.join(', ')}` });
         }
 
-        // Validate sort parameter
+        
         if (sort && !['id', 'name', 'language', 'bio', 'version'].includes(sort)) {
             return res.status(400).json({ error: 'Invalid sort parameter' });
         }
 
-        // Validate order parameter
+        
         if (order && !['asc', 'desc'].includes(order)) {
             return res.status(400).json({ error: 'Invalid order parameter' });
         }
 
-        // Apply filtering
+        
         if (filter) {
             try {
                 const filters = JSON.parse(filter);
@@ -41,7 +41,7 @@ exports.getData = async (req, res) => {
             }
         }
 
-        // Apply sorting
+       
         if (sort) {
             const sortOrder = order === 'desc' ? -1 : 1;
             jsonData.sort((a, b) => {
